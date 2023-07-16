@@ -16,7 +16,7 @@ class OtpServiceProvider extends ServiceProvider
          */
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'otp');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'otp');
-         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
@@ -54,7 +54,7 @@ class OtpServiceProvider extends ServiceProvider
 
         // Register the main class to use with the facade
         $this->app->singleton('otp', function () {
-            return new Otp;
+            return new Otp();
         });
     }
 }

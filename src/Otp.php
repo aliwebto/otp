@@ -2,29 +2,32 @@
 
 namespace Aliwebto\Otp;
 
-
 use Aliwebto\Otp\Models\PhoneCode;
 
 class Otp
 {
     public static function generate($phone)
     {
-        $phoneRegex= "/^(\\+98|0)?9\\d{9}$/";
-        throw_if(!preg_match($phoneRegex,$phone),"phone number is wrong");
+        self::checkPhoneIsValid($phone);
         $code = self::getCode();
         return PhoneCode::create([
             "code" => md5($code),
             "phone" => $phone
         ]);
     }
+    private static function checkPhoneIsValid($phone)
+    {
+        $phoneRegex= "/^(\\+98|0)?9\\d{9}$/";
+        throw_if(!preg_match($phoneRegex, $phone), "phone number is wrong");
+    }
     private static function getDigits(): array
     {
 
-        if (config("otp.code.type") == "full"){
+        if (config("otp.code.type") == "full") {
             $digits = [0,1,2,3,4,5,6,7,8,9];
         }
 
-        if (config("otp.code.type") == "simple"){
+        if (config("otp.code.type") == "simple") {
             $digits = [];
             while (count($digits) < 3) {
                 $random_digit = rand(0, 9);
@@ -44,10 +47,18 @@ class Otp
         }
         shuffle($digits);
         $number =  implode("", array_slice($digits, 0, $length));
-        while (strlen($number) < 5){
+        while (strlen($number) < 5) {
             shuffle($digits);
             $number .= implode("", array_slice($digits, 0, $length-strlen($number)));
         }
         return  $number;
+    }
+
+    public static function regenerateCode($phone)
+    {
+        throw_if(config("otp.features.resend") == false, "Resend feature isn't active");
+        self::checkPhoneIsValid($phone);
+        PhoneCode::where("phone", $phone)->delete();
+        return self::generate($phone);
     }
 }

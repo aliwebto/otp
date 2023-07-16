@@ -1,6 +1,6 @@
 <?php
 
-namespace aliwebto\Models;
+namespace Aliwebto\Otp\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

@@ -1,0 +1,54 @@
+{
+    "name": "aliwebto/otp",
+    "description": "Laravel OTP Authentication Package",
+    "keywords": [
+        "aliwebto",
+        "otp"
+    ],
+    "homepage": "https://github.com/aliwebto/otp",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Alireza Zarei",
+            "email": "aliwebto@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0|^9.0|^10.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aliwebto\\Otp\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Aliwebto\\Otp\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Aliwebto\\Otp\\OtpServiceProvider"
+            ],
+            "aliases": {
+                "Otp": "Aliwebto\\Otp\\OtpFacade"
+            }
+        }
+    }
+}

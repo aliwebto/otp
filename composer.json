@@ -18,7 +18,6 @@
     "require": {
         "php": "^7.4|^8.0",
         "illuminate/support": "^8.0|^9.0|^10.0",
-        "melipayamak/php": "^1.0",
         "ext-soap": "*"
     },
     "require-dev": {

@@ -15,6 +15,9 @@ composer require aliwebto/otp
 ```bash
 php artisan vendor:publish --provider="Aliwebto\Otp\OtpServiceProvider"
 ```
+```bash
+php artisan migrate
+```
 
 
 ## Usage

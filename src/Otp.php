@@ -18,13 +18,14 @@ class Otp
         self::checkPhoneIsValid($phone);
         $code = self::getCode();
         Notification::route('phone', $phone)
-            ->notify(new SendLoginSmsNotification($code,"Your code is {code}",$phone));
+            ->notify(new SendLoginSmsNotification($code, "Your code is {code}", $phone));
         return PhoneCode::create([
             "code" => Hash::make($code),
             "phone" => $phone
         ]);
     }
-    protected static function simplifyPhone($phone){
+    protected static function simplifyPhone($phone)
+    {
         return preg_replace('#^(\+98|0)?#', '', $phone);
     }
     public static function lastCode($phone): PhoneCode
@@ -130,21 +131,21 @@ class Otp
     {
         $phone = self::simplifyPhone($phone);
         if (self::check($code, $phone)) {
-            $user = User::where("phone",$phone)->first();
-            if (!is_null($user)){
-                Auth::loginUsingId($user->id,true);
+            $user = User::where("phone", $phone)->first();
+            if (!is_null($user)) {
+                Auth::loginUsingId($user->id, true);
                 self::deleteCodes($phone);
                 return true;
-            }elseif($createUserIfNotExist){
-                throw_if(is_null($email),"email is required when createUserIfNotExist is true");
-                throw_if(is_null($name),"name is required when createUserIfNotExist is true");
+            } elseif($createUserIfNotExist) {
+                throw_if(is_null($email), "email is required when createUserIfNotExist is true");
+                throw_if(is_null($name), "name is required when createUserIfNotExist is true");
                 $user = User::create([
                     "email" => $email,
                     "password" => Hash::make(Str::random(32)),
                     "phone" => $phone,
                     "name" => $name
                 ]);
-                Auth::loginUsingId($user->id,true);
+                Auth::loginUsingId($user->id, true);
                 self::deleteCodes($phone);
                 return true;
             }

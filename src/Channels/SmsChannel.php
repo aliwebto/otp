@@ -3,7 +3,6 @@
 namespace Aliwebto\Otp\Channels;
 
 use Illuminate\Notifications\Notification;
-use Melipayamak\MelipayamakApi;
 use SoapClient;
 
 class SmsChannel

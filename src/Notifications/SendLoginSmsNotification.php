@@ -4,7 +4,6 @@ namespace Aliwebto\Otp\Notifications;
 
 use Aliwebto\Otp\Channels\SmsChannel;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SendLoginSmsNotification extends Notification
@@ -18,7 +17,7 @@ class SendLoginSmsNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($code,$text,$phone)
+    public function __construct($code, $text, $phone)
     {
         $this->code = $code;
         $this->text = $text;
@@ -38,7 +37,7 @@ class SendLoginSmsNotification extends Notification
 
     public function toSms(object $notifiable): array
     {
-        $text = str_replace("{code}",$this->code,$this->text);
+        $text = str_replace("{code}", $this->code, $this->text);
         return [
             "code" => $this->code,
             "text" => $text,

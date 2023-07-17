@@ -3,9 +3,11 @@
 namespace Aliwebto\Otp;
 
 use Aliwebto\Otp\Models\PhoneCode;
+use Aliwebto\Otp\Notifications\SendLoginSmsNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class Otp
@@ -15,7 +17,8 @@ class Otp
         $phone = self::simplifyPhone($phone);
         self::checkPhoneIsValid($phone);
         $code = self::getCode();
-        echo $code;
+        Notification::route('phone', $phone)
+            ->notify(new SendLoginSmsNotification($code,"Your code is {code}",$phone));
         return PhoneCode::create([
             "code" => Hash::make($code),
             "phone" => $phone

@@ -3,26 +3,36 @@
 namespace Aliwebto\Otp;
 
 use Aliwebto\Otp\Models\PhoneCode;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class Otp
 {
     public static function generate($phone)
     {
+        $phone = self::simplifyPhone($phone);
         self::checkPhoneIsValid($phone);
         $code = self::getCode();
+        echo $code;
         return PhoneCode::create([
             "code" => Hash::make($code),
             "phone" => $phone
         ]);
     }
-
+    protected static function simplifyPhone($phone){
+        return preg_replace('#^(\+98|0)?#', '', $phone);
+    }
     public static function lastCode($phone): PhoneCode
     {
-        return PhoneCode::where("phone",$phone)->latest()->first();
+        $phone = self::simplifyPhone($phone);
+        return PhoneCode::where("phone", $phone)->latest()->first();
     }
+
     private static function checkPhoneIsValid($phone)
     {
+        $phone = self::simplifyPhone($phone);
         $phoneRegex = "/^(\\+98|0)?9\\d{9}$/";
         throw_if(!preg_match($phoneRegex, $phone), "phone number is wrong");
     }
@@ -64,11 +74,12 @@ class Otp
 
     public static function regenerate($phone)
     {
+        $phone = self::simplifyPhone($phone);
         throw_if(config("otp.features.resend") == false, "Resend feature isn't active");
         self::checkPhoneIsValid($phone);
         $lastCode = self::lastCode($phone);
-        if ($lastCode){
-            throw_if(self::checkRegenerateCooldown($lastCode),"Regenerate Cooldown");
+        if ($lastCode) {
+            throw_if(self::checkRegenerateCooldown($lastCode), "Regenerate Cooldown");
         }
         PhoneCode::where("phone", $phone)->delete();
         return self::generate($phone);
@@ -94,18 +105,47 @@ class Otp
 
     public static function checkValid($code, $phone): bool
     {
-        $phone_code = PhoneCode::where("phone",$phone)->first();
-        if (!is_null($phone_code)){
-            return Hash::check($code,$phone_code->code);
+        $phone = self::simplifyPhone($phone);
+        $phone_code = PhoneCode::where("phone", $phone)->first();
+        if (!is_null($phone_code)) {
+            return Hash::check($code, $phone_code->code);
         }
         return false;
     }
 
     public static function check($code, $phone): bool
     {
-        $phone_code = PhoneCode::where("phone",$phone)->first();
-        if (!is_null($phone_code)){
-            return self::checkValid($code,$phone) and self::checkLifeSpan($phone_code);
+        $phone = self::simplifyPhone($phone);
+        $phone_code = PhoneCode::where("phone", $phone)->first();
+        if (!is_null($phone_code)) {
+            return self::checkValid($code, $phone) and self::checkLifeSpan($phone_code);
+        }
+        return false;
+    }
+
+    public static function authenticate($code, $phone, $createUserIfNotExist = false, $email = null, $name = null)
+    {
+        $phone = self::simplifyPhone($phone);
+        if (self::check($code, $phone)) {
+            $user = User::where("phone",$phone)->first();
+            if (!is_null($user)){
+                Auth::loginUsingId($user->id,true);
+                PhoneCode::where("phone", $phone)->delete();
+                return true;
+            }elseif($createUserIfNotExist){
+                throw_if(is_null($email),"email is required when createUserIfNotExist is true");
+                throw_if(is_null($name),"name is required when createUserIfNotExist is true");
+                $user = User::create([
+                    "email" => $email,
+                    "password" => Hash::make(Str::random(32)),
+                    "phone" => $phone,
+                    "name" => $name
+                ]);
+                Auth::loginUsingId($user->id,true);
+                PhoneCode::where("phone", $phone)->delete();
+                return true;
+
+            }
         }
         return false;
     }

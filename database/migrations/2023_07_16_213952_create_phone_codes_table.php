@@ -14,7 +14,6 @@ return new class () extends Migration {
             $table->id();
             $table->string("code");
             $table->string("phone");
-            $table->enum("status", ["notSent","sent","verified","failed"])->default("notSent");
             $table->timestamps();
         });
     }

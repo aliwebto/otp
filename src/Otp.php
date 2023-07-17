@@ -84,7 +84,7 @@ class Otp
         if ($lastCode) {
             throw_if(self::checkRegenerateCooldown($lastCode), "Regenerate Cooldown");
         }
-        PhoneCode::where("phone", $phone)->delete();
+        self::deleteCodes($phone);
         return self::generate($phone);
     }
 
@@ -133,7 +133,7 @@ class Otp
             $user = User::where("phone",$phone)->first();
             if (!is_null($user)){
                 Auth::loginUsingId($user->id,true);
-                PhoneCode::where("phone", $phone)->delete();
+                self::deleteCodes($phone);
                 return true;
             }elseif($createUserIfNotExist){
                 throw_if(is_null($email),"email is required when createUserIfNotExist is true");
@@ -145,11 +145,15 @@ class Otp
                     "name" => $name
                 ]);
                 Auth::loginUsingId($user->id,true);
-                PhoneCode::where("phone", $phone)->delete();
+                self::deleteCodes($phone);
                 return true;
-
             }
         }
         return false;
+    }
+
+    public static function deleteCodes($phone)
+    {
+        PhoneCode::where("phone", $phone)->delete();
     }
 }

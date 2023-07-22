@@ -110,7 +110,7 @@ class Otp
     public static function checkValid($code, $phone): bool
     {
         $phone = self::simplifyPhone($phone);
-        $phone_code = PhoneCode::where("phone", $phone)->first();
+        $phone_code = PhoneCode::where("phone", $phone)->latest()->first();
         if (!is_null($phone_code)) {
             return Hash::check($code, $phone_code->code);
         }
@@ -120,7 +120,7 @@ class Otp
     public static function check($code, $phone): bool
     {
         $phone = self::simplifyPhone($phone);
-        $phone_code = PhoneCode::where("phone", $phone)->first();
+        $phone_code = PhoneCode::where("phone", $phone)->latest()->first();
         if (!is_null($phone_code)) {
             return self::checkValid($code, $phone) and self::checkLifeSpan($phone_code);
         }
